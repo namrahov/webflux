@@ -51,7 +51,7 @@ public class CandidateClient {
     public Mono<List<ResponseDto>> findSquareList(int input) {
         return webClient
                 .get()
-                .uri("/square/list/{input}", input)
+                .uri("http://localhost:2002/square/list/{input}", input)
                 .retrieve()
                 .onStatus(
                         HttpStatusCode::is5xxServerError,

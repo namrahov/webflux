@@ -20,7 +20,7 @@ public class CandidateClient {
 
         webClient
                 .get()
-                .uri("/square/{input}", input)
+                .uri("http://localhost:2002/square/{input}", input)
                 .retrieve()
                 .onStatus(
                         HttpStatusCode::is5xxServerError,

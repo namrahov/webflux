@@ -8,6 +8,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Component
@@ -43,4 +47,29 @@ public class CandidateClient {
 
         return dto.get();
     }
+
+    public Mono<List<ResponseDto>> findSquareList(int input) {
+        return webClient
+                .get()
+                .uri("/square/list/{input}", input)
+                .retrieve()
+                .onStatus(
+                        HttpStatusCode::is5xxServerError,
+                        clientResponse -> clientResponse.bodyToMono(String.class)
+                                .flatMap(errorMessage -> Mono.error(new Exception(errorMessage)))
+                )
+                .bodyToFlux(ResponseDto.class)
+                .collectList()
+                .flatMap(responseList -> {
+                    // Process responseList or return it directly
+                    return someAsyncOperation(responseList); // Example of chaining with another async operation
+                });
+    }
+
+    public Mono<List<ResponseDto>> someAsyncOperation(List<ResponseDto> responseList) {
+        System.out.println("sfsdfsdfsdf="+responseList.size());
+        return Mono.just(responseList); // Example: returning the list directly
+    }
+
+
 }

@@ -87,7 +87,7 @@ public class CandidateClient {
                         System.out.println("Error Status Code: " + ((WebClientResponseException) throwable).getStatusCode());
                     }
                     System.out.println("Error: " + throwable.getMessage());
-                    throwable.printStackTrace();
+                    //throwable.printStackTrace();
                 });
 
         return atomicReference.get();

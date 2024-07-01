@@ -18,7 +18,7 @@ public class DemoController {
     @GetMapping
     public void ada() {
         MultiplyDto dto = new MultiplyDto();
-        dto.setFirst(3);
+        dto.setFirst(10);
         dto.setSecond(4);
 
         ResponseDto dto1 = candidateClient.postSquare(dto);

@@ -1,5 +1,6 @@
 package com.ahmed.client;
 
+import com.ahmed.dto.MultiplyDto;
 import com.ahmed.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatusCode;
@@ -64,6 +65,34 @@ public class CandidateClient {
                 .flatMap(Mono::just); // Example of chaining with another async operation
     }
 
+    public ResponseDto postSquare(MultiplyDto dto) {
+        AtomicReference<ResponseDto> atomicReference = new AtomicReference<>(new ResponseDto());
+        webClient
+                .post()
+                .uri("http://localhost:2002/")
+                .bodyValue(dto)
+                .retrieve()
+                .onStatus(
+                        HttpStatusCode::is5xxServerError,
+                        clientResponse -> clientResponse.bodyToMono(String.class).flatMap(errorMessage -> {
+                            return Mono.error(new Exception(errorMessage));
+                        })
+                )
+                .bodyToMono(ResponseDto.class)
+                .subscribe(responseDto -> {
+                    atomicReference.set(responseDto);
+                    System.out.println("responseDto=" + responseDto);
+                }, throwable -> {
+                    if (throwable instanceof WebClientResponseException) {
+                        System.out.println("Error Status Code: " + ((WebClientResponseException) throwable).getStatusCode());
+                    }
+                    System.out.println("Error: " + throwable.getMessage());
+                    throwable.printStackTrace();
+                });
+
+        return atomicReference.get();
+
+    }
 
 
 }

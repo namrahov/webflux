@@ -55,21 +55,15 @@ public class CandidateClient {
                 .retrieve()
                 .onStatus(
                         HttpStatusCode::is5xxServerError,
-                        clientResponse -> clientResponse.bodyToMono(String.class)
-                                .flatMap(errorMessage -> Mono.error(new Exception(errorMessage)))
+                        clientResponse -> clientResponse.bodyToMono(String.class).flatMap(errorMessage -> {
+                            return Mono.error(new Exception(errorMessage));
+                        })
                 )
                 .bodyToFlux(ResponseDto.class)
                 .collectList()
-                .flatMap(responseList -> {
-                    // Process responseList or return it directly
-                    return someAsyncOperation(responseList); // Example of chaining with another async operation
-                });
+                .flatMap(Mono::just); // Example of chaining with another async operation
     }
 
-    public Mono<List<ResponseDto>> someAsyncOperation(List<ResponseDto> responseList) {
-        System.out.println("sfsdfsdfsdf="+responseList.size());
-        return Mono.just(responseList); // Example: returning the list directly
-    }
 
 
 }

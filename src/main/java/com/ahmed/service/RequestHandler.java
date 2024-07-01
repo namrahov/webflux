@@ -7,7 +7,6 @@ import com.ahmed.exception.InputValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Flux;
@@ -15,7 +14,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @RequiredArgsConstructor
@@ -35,20 +34,17 @@ public class RequestHandler {
         Mono<ResponseDto> responseDtoMono = reactiveMathService.findSquare(input);
 
         List<ResponseDto> list = new ArrayList<>();
+
         candidateClient.findSquareList(input)
-                .subscribe(
-                        responseList -> {
-                            list.addAll(responseList);
-                            responseList.forEach(dto -> System.out.println(dto));
-                            // You can continue chaining reactive operators or handling the list here
-                        },
-                        error -> {
-                            // Handle any errors
-                        }
-                );
-
-
-        System.out.println("size="+list.size());
+                .doOnNext(list::addAll)
+                .doOnError(error -> {
+                    System.err.println("Error occurred: " + error.getMessage());
+                })
+                .doFinally(signal -> {
+                    // Print size after the processing is done
+                    System.out.println("size=" + list.size());
+                })
+                .subscribe();
 
         return ServerResponse.ok().body(responseDtoMono, ResponseDto.class);
     }

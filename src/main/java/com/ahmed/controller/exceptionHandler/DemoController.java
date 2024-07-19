@@ -19,7 +19,7 @@ public class DemoController {
     public void ada() {
         MultiplyDto dto = new MultiplyDto();
         dto.setFirst(10);
-        dto.setSecond(4);
+        dto.setSecond(5);
 
         ResponseDto dto1 = candidateClient.postSquare(dto);
         System.out.println("dto1="+dto1);
